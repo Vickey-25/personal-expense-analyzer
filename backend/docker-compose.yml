@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:17
+    container_name: expense-analyzer-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: expense_analyzer
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: .
+    container_name: expense-analyzer-api
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/expense_analyzer
+      SECRET_KEY: change-this-in-production
+      CORS_ORIGINS: http://localhost:5173
+    ports:
+      - "8000:8000"
+
+volumes:
+  postgres_data:
